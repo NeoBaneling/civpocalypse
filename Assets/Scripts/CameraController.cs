@@ -5,6 +5,14 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     private float speed = 0.5f;
+    private float minY = 4f;
+    private float maxY = 16f;
+
+    // Rotation vars
+    private float smooth = 0.5f;
+    private float minXRot = 45f;
+    private float maxXRot = 75f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -13,6 +21,17 @@ public class CameraController : MonoBehaviour
 
     // Update is called once per frame
     void Update()
+    {
+        UpdateKeyboardInput();
+
+        float mouseScrollDelta = Input.mouseScrollDelta.y * 0.1f;
+        if (transform.position.y + mouseScrollDelta > minY && transform.position.y + mouseScrollDelta < maxY)
+        {
+            transform.position = transform.position + new Vector3(0, mouseScrollDelta, 0);
+        }
+    }
+
+    private void UpdateKeyboardInput()
     {
         // Moves the camera around according to user input
         if (Input.GetKey(KeyCode.W))
