@@ -65,7 +65,6 @@ public class GameBoardPopulator : MonoBehaviour
                 {
                     double x = System.Math.Sqrt(System.Math.Abs(childZ - ((boardTiles.Length - 1) * 2 - 1)));
                     double xsqrd = System.Math.Pow(x, 8);
-                    Debug.Log("x: " + x + ", xsqrd: " + xsqrd);
                     bottomIndex = System.Convert.ToInt32(xsqrd + 6);
                     topIndex = boardTiles.Length;
                 }
@@ -75,7 +74,7 @@ public class GameBoardPopulator : MonoBehaviour
                     topIndex = boardTiles.Length - 1;
                 }
                 int tileIndex = Random.Range(bottomIndex, topIndex);
-                Debug.Log("Bottom Index: " + bottomIndex + ", Top Index: " + boardTiles.Length + ", Provided Index: " + tileIndex);
+                // Debug.Log("Bottom Index: " + bottomIndex + ", Top Index: " + boardTiles.Length + ", Provided Index: " + tileIndex);
                 GameObject tile = Instantiate(boardTiles[tileIndex], new Vector3(0, 0, 0), Quaternion.identity, null);
                 tile.transform.position = child.position + new Vector3(i*3, tile.transform.lossyScale.y/2, 0);
             }
