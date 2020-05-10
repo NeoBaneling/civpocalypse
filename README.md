@@ -23,3 +23,9 @@ https://3drt.com/store/buy-lowpoly-3d-models/fantasy-props-bundle.html
 https://3drt.com/store/characters/cartoon-characters/chibii-monsters.html
 
 https://3drt.com/store/characters/fantasy-characters/chibi-realm-characters-bundle.html
+
+https://3drt.com/store/characters/fantasy-ghouls.html
+
+https://3drt.com/store/characters/trolls-monsters.html
+
+https://3drt.com/store/buy-lowpoly-3d-models/zombies-swarm-pack.html
