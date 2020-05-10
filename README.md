@@ -15,5 +15,7 @@ Four different forms of apocalypses. The player must successfully perform one ap
 
 ## External Resources to Stare At
 https://www.cgtrader.com/3d-models/character/fantasy/characters-creatures-pack
+
 https://3drt.com/store/characters/cartoon-characters/chibii-robots.html
+
 https://3drt.com/store/buy-lowpoly-3d-models/fantasy-props-bundle.html
