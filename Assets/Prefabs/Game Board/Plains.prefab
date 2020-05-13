@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5284108262744145146}
   - component: {fileID: 6007289340360106616}
   - component: {fileID: 4430027107263153109}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plains
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,6 +56,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

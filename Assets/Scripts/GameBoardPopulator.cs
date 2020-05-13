@@ -7,12 +7,10 @@ public class GameBoardPopulator : MonoBehaviour
     // All of the prefabs we'll be using to populate our board
     public GameObject[] boardTiles;
 
-    private int boardSize = 15;
-
     // Start is called before the first frame update
     void Start()
     {
-        GenerateGameBoard();
+
     }
 
     // Update is called once per frame
@@ -30,14 +28,15 @@ public class GameBoardPopulator : MonoBehaviour
      * array.
      * Tile generation is built off a function written below.
      **/
-    private void GenerateGameBoard()
+    public void GenerateGameBoard()
     {
 
         // The current row of the board grid, used for specifying Z coordinates
         int childZ = 0;
+        int boardSize = GameBoardManager.Instance.boardSize;
         foreach (Transform child in transform)
         {
-            for (int i = 0; i < boardSize; i++)
+            for (int tileX = 0; tileX < boardSize; tileX++)
             {
                 /**
                  *         if x < 2        | sqrt(-x + 1)^8 + 6
@@ -76,7 +75,9 @@ public class GameBoardPopulator : MonoBehaviour
                 int tileIndex = Random.Range(bottomIndex, topIndex);
                 // Debug.Log("Bottom Index: " + bottomIndex + ", Top Index: " + boardTiles.Length + ", Provided Index: " + tileIndex);
                 GameObject tile = Instantiate(boardTiles[tileIndex], new Vector3(0, 0, 0), Quaternion.identity, null);
-                tile.transform.position = child.position + new Vector3(i*3, tile.transform.lossyScale.y/2, 0);
+                tile.transform.position = child.position + new Vector3(tileX*3, tile.transform.lossyScale.y/2, 0);
+                tile.GetComponent<Tile>().SetCoords(tileX, childZ);
+                GameBoardManager.Instance.SetTile(tile, tileX, childZ);
             }
             childZ++;
         }

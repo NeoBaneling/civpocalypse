@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5692058743188386812}
   - component: {fileID: 1573344937127503592}
   - component: {fileID: 3587990435368450837}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Hill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,6 +56,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
