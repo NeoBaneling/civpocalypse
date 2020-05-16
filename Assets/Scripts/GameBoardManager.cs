@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -44,15 +44,20 @@ public class GameBoardManager : MonoBehaviour
 
     }
 
+    void OnEnable()
+    {
+        EventManager.StartListening("TileClickEvent", HighlightTile);
+    }
+
+    void OnDisable()
+    {
+        EventManager.StopListening("TileClickEvent", HighlightTile);
+    }
+
     // Update is called once per frame
     void Update()
     {
-        if (GameObject.FindGameObjectsWithTag("TileSelected").Length > 0)
-        {
-            GameObject tile = GameObject.FindGameObjectsWithTag("TileSelected")[0];
-            int[] arr = tile.GetComponent<Tile>().GetCoords();
-            selectedTile = GetTile(arr[0], arr[1]);
-        }
+
     }
 
     public void SetTile(GameObject tile, int x, int z)
@@ -81,5 +86,12 @@ public class GameBoardManager : MonoBehaviour
             Debug.LogError("An exception occured.");
             return null;
         }
+    }
+
+    void HighlightTile()
+    {
+        GameObject tile = GameObject.FindGameObjectsWithTag("TileSelected")[0];
+        int[] arr = tile.GetComponent<Tile>().GetCoords();
+        selectedTile = GetTile(arr[0], arr[1]);
     }
 }

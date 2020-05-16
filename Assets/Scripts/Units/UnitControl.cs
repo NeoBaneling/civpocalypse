@@ -20,6 +20,14 @@ public class UnitControl : MonoBehaviour
         SetUnitToTile(GameBoardManager.Instance.GetTile((int)transform.position.x/3, (int)transform.position.z/3));
     }
 
+    void OnEnable()
+    {
+    }
+
+    void OnDisable()
+    {
+    }
+
     // Update is called once per frame
     void Update()
     {

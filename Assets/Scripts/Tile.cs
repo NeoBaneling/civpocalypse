@@ -42,6 +42,7 @@ public class Tile : MonoBehaviour
                     generatedHighlight = Instantiate(highlight, transform.position + new Vector3(0f, transform.lossyScale.y/2 + 0.1f, 0f), Quaternion.identity, null);
                     selected = !selected;
                     tag = "TileSelected";
+                    EventManager.TriggerEvent("TileClickEvent");
                 }
                 else if (selected)
                 {
