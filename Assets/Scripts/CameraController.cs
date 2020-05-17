@@ -6,7 +6,7 @@ public class CameraController : MonoBehaviour
 {
     private float speed = 0.5f;
     private float minY = 4f;
-    private float maxY = 16f;
+    private float maxY = 36f;
 
     // Rotation vars
     private float smooth = 0.5f;

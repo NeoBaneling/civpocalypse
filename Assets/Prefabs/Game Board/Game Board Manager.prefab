@@ -43,6 +43,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d435f2af80944591a366d4e5091627d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _boardSize: 15
+  _boardSize: 40
   gameBoard: {fileID: 2670824811889203387, guid: f13b01cbeca134a2997dcedcc6746a57,
     type: 3}
