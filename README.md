@@ -1,5 +1,5 @@
-# Civpocalypse
-Bishop Boys' Civpocalypse Game
+# [Cho'Gall]
+Bishop Boys' [Cho'Gall] Game
 
 Link to Google Docs <a href="https://docs.google.com/document/d/1Ahguo55UAO-L2iUj7KMUyHHKwPPzQT1xr0dbr_G1cKg/edit?usp=sharing" target="_blank">here.</a> Would greatly recommend for additional information and thought processes!
 
