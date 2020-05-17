@@ -36,27 +36,21 @@ public class GameBoardPopulator : MonoBehaviour
         // col corresponds to the X position, row corresponds to Z position
         for (int row = 0; row < boardSize; row++)
         {
-            int bottomIndex = 0;
-            int topIndex = 8;
             float[] weights = new float[boardTiles.Length];
 
             if (row == 0 || row == boardSize - 1)
             {
-                bottomIndex = 7;
                 weights[7] = 1.0f;
             }
             // When we are on the border of ice and water
             else if (row == 1 || row == boardSize-2)
             {
-                bottomIndex = 6;
                 weights[6] = 0.75f;
                 weights[7] = 0.25f;
             }
             // If we're in the tundra region
             else if ((row > 1 && row < tundraRowSize + 2) || (row > boardSize - tundraRowSize - 3 && row < boardSize - 2))
             {
-                bottomIndex = 4;
-                topIndex = 7;
                 weights[4] = 0.2f;
                 weights[5] = 0.4f;
                 weights[6] = 0.6f;
@@ -64,21 +58,18 @@ public class GameBoardPopulator : MonoBehaviour
             // Everything else
             else
             {
-                bottomIndex = 0;
-                topIndex = 7;
                 weights[0] = 0.04f;
-                weights[1] = 0.12f;
-                weights[2] = 0.04f;
-                weights[3] = 0.24f;
-                weights[4] = 0.24f;
-                weights[5] = 0.02f;
-                weights[6] = 0.3f;
+                weights[1] = 0.10f;
+                weights[2] = 0.05f;
+                weights[3] = 0.18f;
+                weights[4] = 0.18f;
+                weights[5] = 0.00f;
+                weights[6] = 0.45f;
             }
 
             for (int col = 0; col < boardSize; col++)
             {
-                Debug.Log(bottomIndex +", "+ topIndex);
-                int tileIndex = ReturnWeightedIndex(bottomIndex, topIndex, weights);
+                int tileIndex = ReturnWeightedIndex(weights);
                 GameObject tile = Instantiate(boardTiles[tileIndex], new Vector3(0, 0, 0), Quaternion.identity, null);
                 tile.transform.position = tile.transform.position + new Vector3(col*3, tile.transform.lossyScale.y/2, row*3);
                 tile.GetComponent<Tile>().SetCoords(col, row);
@@ -114,10 +105,10 @@ public class GameBoardPopulator : MonoBehaviour
         }
     }
 
-    private int ReturnWeightedIndex(int bottomIndex, int topIndex, float[] weights)
+    private int ReturnWeightedIndex(float[] weights)
     {
         List<int> weightedIndeces = new List<int>();
-        int currWeightedIndex = bottomIndex;
+        int currWeightedIndex = 0;
         int prevIndex = 0;
         foreach (float weight in weights)
         {
@@ -126,10 +117,7 @@ public class GameBoardPopulator : MonoBehaviour
             {
                 weightedIndeces.Add(currWeightedIndex);
             }
-            if (weight > 0.0f)
-            {
-                currWeightedIndex++;
-            }
+            currWeightedIndex++;
         }
 
         return weightedIndeces[Random.Range(0, 100)];
