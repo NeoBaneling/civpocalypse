@@ -6,6 +6,8 @@ TagManager:
   tags:
   - TileSelected
   - TileDeselected
+  - UnitSelected
+  - UnitDeselected
   layers:
   - Default
   - TransparentFX

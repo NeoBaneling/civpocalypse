@@ -18,6 +18,7 @@ public class Tile : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        // Removes the "(Clone)" at the end
         type = name.Substring(0, name.Length - 7);
         height = transform.lossyScale.y;
     }

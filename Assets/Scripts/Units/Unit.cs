@@ -12,14 +12,21 @@ public class Unit : MonoBehaviour
     public Material baseM;
     public Material selectedM;
 
-    private string faction;
+    [SerializeField]
+    private string _faction;
+    public string faction { get; set; }
+    private int x;
+    private int z;
 
-    private bool selected = false;
+    [SerializeField]
+    private bool _isSelected;
+    public bool isSelected { get; set; }
     private bool canMove = false;
     // Start is called before the first frame update
     void Start()
     {
         SetUnitToTile(GameBoardManager.Instance.GetTile((int)transform.position.x/3, (int)transform.position.z/3));
+        isSelected = false;
     }
 
     void OnEnable()
@@ -40,14 +47,27 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void SetFaction(string faction)
+    // Resets the unit's transform to match the tile being moved to
+    // Mostly needed to reset the height of the unit
+    public void SetUnitToTile(GameObject tile)
     {
-        this.faction = faction;
+        int[] arr = tile.GetComponent<Tile>().GetCoords();
+        SetCoords(arr[0], arr[1]);
+        transform.position = new Vector3(arr[0]*3, tile.GetComponent<Tile>().height + transform.lossyScale.y, arr[1]*3);
     }
 
-    public string GetFaction()
+    public void SetCoords(int x, int z)
     {
-        return faction;
+        this.x = x;
+        this.z = z;
+    }
+
+    public int[] GetCoords()
+    {
+        int[] arr = new int[2];
+        arr[0] = x;
+        arr[1] = z;
+        return arr;
     }
 
     private void CheckMouseClick()
@@ -59,19 +79,22 @@ public class Unit : MonoBehaviour
 
             if (Physics.Raycast (ray, out hit))
             {
-                if (!selected && hit.transform.gameObject == this.gameObject)
+                if (!isSelected && hit.transform.gameObject == this.gameObject)
                 {
-                    selected = !selected;
+                    isSelected = !isSelected;
                     GetComponent<MeshRenderer>().material = selectedM;
+                    tag = "UnitSelected";
+                    EventManager.TriggerEvent("UnitClickEvent");
                 }
-                else if (selected)
+                else if (isSelected)
                 {
                     if (GameBoardManager.Instance.selectedTile)
                     {
                         canMove = true;
                     }
-                    selected = !selected;
+                    isSelected = !isSelected;
                     GetComponent<MeshRenderer>().material = baseM;
+                    tag = "UnitDeselected";
                 }
             }
         }
@@ -90,6 +113,7 @@ public class Unit : MonoBehaviour
         if (!(type == "Mountain" || type == "Water") && IsValidMovement(arr[0], arr[1]))
         {
             SetUnitToTile(selectedTile);
+            EventManager.TriggerEvent("UnitMoveEvent");
             canMove = false;
         }
     }
@@ -100,13 +124,5 @@ public class Unit : MonoBehaviour
         // due to the grid size, so here they have to be scaled back down to match
         // the position of the selected tile and the unit's speed.
         return System.Math.Abs(endX - transform.position.x/3) <= speed && System.Math.Abs(endZ - transform.position.z/3) <= speed;
-    }
-
-    // Resets the unit's transform to match the tile being moved to
-    // Mostly needed to reset the height of the unit
-    private void SetUnitToTile(GameObject tile)
-    {
-        int[] arr = tile.GetComponent<Tile>().GetCoords();
-        transform.position = new Vector3(arr[0]*3, tile.GetComponent<Tile>().height + transform.lossyScale.y, arr[1]*3);
     }
 }

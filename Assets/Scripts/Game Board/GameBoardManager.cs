@@ -60,11 +60,20 @@ public class GameBoardManager : MonoBehaviour
         tiles[x, z] = tile;
     }
 
+    /**
+     * GetTile() handles wrapping issues, so if a value goes negative or exceeds
+     * the board size on the X axis, it will simply wrap to the other side of
+     * the board.
+     *
+     * The Z axis doesn't wrap, as we can't move from ice to ice.
+     **/
     public GameObject GetTile(int x, int z)
     {
         try
         {
-            return tiles[x, z];
+            if (z < 0) z = 0;
+            if (z > boardSize - 1) z = boardSize - 1;
+            return tiles[(x%boardSize + boardSize)%boardSize, z];
         }
         catch (System.IndexOutOfRangeException e)
         {
