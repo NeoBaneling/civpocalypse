@@ -21,7 +21,7 @@ public class GameBoardManager : MonoBehaviour
     public GameObject gameBoard;
     public GameObject fog;
 
-    private GameObject[] tiles;
+    private GameObject[,] tiles;
     private GameObject _selectedTile;
     public GameObject selectedTile { get; set; }
 
@@ -37,7 +37,7 @@ public class GameBoardManager : MonoBehaviour
             throw new UnityException("There cannot be more than one GameBoardManager script. The instances are " + s_Instance.name + " and " + name + ".");
         }
 
-        tiles = new GameObject[boardSize * boardSize];
+        tiles = new GameObject[boardSize, boardSize];
         gameBoard.GetComponent<GameBoardPopulator>().GenerateGameBoard();
     }
 
@@ -53,18 +53,18 @@ public class GameBoardManager : MonoBehaviour
 
     public void SetTile(GameObject tile, int x, int z)
     {
-        if (tiles[x + boardSize * z] != null)
+        if (tiles[x, z] != null)
         {
-            Destroy(tiles[x + boardSize * z]);
+            Destroy(tiles[x, z]);
         }
-        tiles[x + (boardSize * z)] = tile;
+        tiles[x, z] = tile;
     }
 
     public GameObject GetTile(int x, int z)
     {
         try
         {
-            return tiles[x + (boardSize * z)];
+            return tiles[x, z];
         }
         catch (System.IndexOutOfRangeException e)
         {
@@ -131,7 +131,7 @@ public class GameBoardManager : MonoBehaviour
         return fog;
     }
 
-    public GameObject[] GetBoard()
+    public GameObject[,] GetBoard()
     {
         return tiles;
     }
