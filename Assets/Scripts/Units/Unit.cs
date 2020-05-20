@@ -47,13 +47,15 @@ public class Unit : MonoBehaviour
         }
     }
 
-    // Resets the unit's transform to match the tile being moved to
-    // Mostly needed to reset the height of the unit
-    public void SetUnitToTile(GameObject tile)
+    // A creation function to set up all necessary parameters for a new Unit
+    public void Setup(string faction, int x, int z, GameObject tile, bool isSelected)
     {
-        int[] arr = tile.GetComponent<Tile>().GetCoords();
-        SetCoords(arr[0], arr[1]);
-        transform.position = new Vector3(arr[0]*3, tile.GetComponent<Tile>().height + transform.lossyScale.y, arr[1]*3);
+        this.faction = faction;
+        this.isSelected = isSelected;
+        SetCoords(x, z);
+        SetUnitToTile(tile);
+        baseM = (Material)Resources.Load("Materials/"+faction, typeof (Material));
+        GetComponent<MeshRenderer>().material = baseM;
     }
 
     public void SetCoords(int x, int z)
@@ -98,6 +100,15 @@ public class Unit : MonoBehaviour
                 }
             }
         }
+    }
+
+    // Resets the unit's transform to match the tile being moved to
+    // Mostly needed to reset the height of the unit
+    private void SetUnitToTile(GameObject tile)
+    {
+        int[] arr = tile.GetComponent<Tile>().GetCoords();
+        SetCoords(arr[0], arr[1]);
+        transform.position = new Vector3(arr[0]*3, tile.GetComponent<Tile>().height + transform.lossyScale.y, arr[1]*3);
     }
 
     private void TryToMoveUnit()

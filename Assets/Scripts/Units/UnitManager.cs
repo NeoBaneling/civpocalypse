@@ -51,10 +51,7 @@ public class UnitManager : MonoBehaviour
     public GameObject CreateUnit(string name, int x, int z, string playerFaction)
     {
         GameObject unit = (GameObject) Instantiate(Resources.Load("Prefabs/Units/"+name), new Vector3(0, 0, 0), Quaternion.identity, null);
-        unit.GetComponent<Unit>().faction = playerFaction;
-        unit.GetComponent<Unit>().SetCoords(x, z);
-        unit.GetComponent<Unit>().SetUnitToTile(GameBoardManager.Instance.GetTile(x, z));
-        unit.GetComponent<Unit>().isSelected = true;
+        unit.GetComponent<Unit>().Setup(playerFaction, x, z, GameBoardManager.Instance.GetTile(x, z), true);
         selectedUnit = unit;
         if (units[0] == null)
         {
