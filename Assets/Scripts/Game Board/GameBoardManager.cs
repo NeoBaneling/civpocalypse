@@ -19,6 +19,7 @@ public class GameBoardManager : MonoBehaviour
     }
 
     public GameObject gameBoard;
+    public GameObject fog;
 
     private GameObject[] tiles;
     private GameObject _selectedTile;
@@ -123,6 +124,16 @@ public class GameBoardManager : MonoBehaviour
             list.Add(GetTile(x + 1, z - 1));
         }
         return list;
+    }
+
+    public GameObject GetFog()
+    {
+        return fog;
+    }
+
+    public GameObject[] GetBoard()
+    {
+        return tiles;
     }
 
     void HighlightTile()
