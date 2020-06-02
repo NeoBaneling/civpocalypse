@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,6 +22,7 @@ public class Unit : MonoBehaviour
     private bool _isSelected;
     public bool isSelected { get; set; }
     private bool canMove = false;
+    private List<GameObject> path = new List<GameObject>();
     // Start is called before the first frame update
     void Start()
     {
@@ -113,20 +114,35 @@ public class Unit : MonoBehaviour
 
     private void TryToMoveUnit()
     {
-        // KNOWN ISSUE
-        // Unit will move to tile previously selected rather than last selected.
-        // This is an issue with how Unity handles its update methods.
-        // Need to look into how to provide priority to GameBoardManager update.
-        // Either that or utilize Events, which reqs setup of EventManager.
         GameObject selectedTile = GameBoardManager.Instance.selectedTile;
         int[] arr = selectedTile.GetComponent<Tile>().GetCoords();
         string type = selectedTile.GetComponent<Tile>().type;
-        if (!(type == "Mountain" || type == "Water") && IsValidMovement(arr[0], arr[1]))
+        if (type == "Mountain" || type == "Water") return;
+        if (System.Math.Abs(arr[0] - x) > speed || System.Math.Abs(arr[1] - z) > speed) return;
+
+        path = GameBoardManager.Instance.GetPath(x,z,arr[0],arr[1]);
+        canMove = false;
+        StartCoroutine("MoveToTile");
+        /*
+        if (speed > 1)
         {
-            SetUnitToTile(selectedTile);
-            EventManager.TriggerEvent("UnitMoveEvent");
-            canMove = false;
+            if (IsValidMovement(arr[0], arr[1]))
+            {
+                SetUnitToTile(selectedTile);
+                EventManager.TriggerEvent("UnitMoveEvent");
+                canMove = false;
+            }
         }
+        else
+        {
+            if (IsValidMovement(arr[0], arr[1]))
+            {
+                SetUnitToTile(selectedTile);
+                EventManager.TriggerEvent("UnitMoveEvent");
+                canMove = false;
+            }
+        }
+        */
     }
 
     private bool IsValidMovement(int endX, int endZ)
@@ -135,5 +151,16 @@ public class Unit : MonoBehaviour
         // due to the grid size, so here they have to be scaled back down to match
         // the position of the selected tile and the unit's speed.
         return System.Math.Abs(endX - transform.position.x/3) <= speed && System.Math.Abs(endZ - transform.position.z/3) <= speed;
+    }
+
+    // Temporary element to watch units move along paths
+    private IEnumerator MoveToTile()
+    {
+        foreach (GameObject tile in path)
+        {
+            SetUnitToTile(tile);
+            EventManager.TriggerEvent("UnitMoveEvent");
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 }
