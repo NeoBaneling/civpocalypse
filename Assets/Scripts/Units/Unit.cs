@@ -120,29 +120,13 @@ public class Unit : MonoBehaviour
         if (type == "Mountain" || type == "Water") return;
         if (System.Math.Abs(arr[0] - x) > speed || System.Math.Abs(arr[1] - z) > speed) return;
 
+        Debug.Log("---We're gonna get ourselves a path.");
         path = GameBoardManager.Instance.GetPath(x,z,arr[0],arr[1]);
         canMove = false;
-        StartCoroutine("MoveToTile");
-        /*
-        if (speed > 1)
+        if (path != null && path.Count > 0)
         {
-            if (IsValidMovement(arr[0], arr[1]))
-            {
-                SetUnitToTile(selectedTile);
-                EventManager.TriggerEvent("UnitMoveEvent");
-                canMove = false;
-            }
+            StartCoroutine("MoveToTile");
         }
-        else
-        {
-            if (IsValidMovement(arr[0], arr[1]))
-            {
-                SetUnitToTile(selectedTile);
-                EventManager.TriggerEvent("UnitMoveEvent");
-                canMove = false;
-            }
-        }
-        */
     }
 
     private bool IsValidMovement(int endX, int endZ)
@@ -156,11 +140,14 @@ public class Unit : MonoBehaviour
     // Temporary element to watch units move along paths
     private IEnumerator MoveToTile()
     {
-        foreach (GameObject tile in path)
+        for (int i = 0; i < path.Count; i++)
         {
-            SetUnitToTile(tile);
-            EventManager.TriggerEvent("UnitMoveEvent");
-            yield return new WaitForSeconds(0.1f);
+            if (path[i] != null)
+            {
+                SetUnitToTile(path[i]);
+                EventManager.TriggerEvent("UnitMoveEvent");
+                yield return new WaitForSeconds(0.3f);
+            }
         }
     }
 }

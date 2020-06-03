@@ -135,6 +135,13 @@ public class GameBoardManager : MonoBehaviour
         return list;
     }
 
+    /**
+     * Generates a path from point A (startX, startZ) to point B (targetX, targetZ)
+     * to determine if the querying unit can move to the target point.
+     *
+     * The function determines which to prioritize first : latitude (x) or longitude (z)
+     * If both of these are equal, it just acts in a diagonal direction.
+     **/
     public List<GameObject> GetPath(int startX, int startZ, int targetX, int targetZ)
     {
         int currX = startX;
@@ -143,8 +150,9 @@ public class GameBoardManager : MonoBehaviour
         int i = 0;
 
         Debug.Log(currX +", " + currZ+"; "+targetX+", "+targetZ);
-        while (currX != targetX || currZ != targetZ)
+        while ((currX != targetX || currZ != targetZ) && i < 8)
         {
+
             Debug.Log("===========");
             Debug.Log("Iteration " + i);
             int diffX = targetX - currX;
@@ -157,56 +165,54 @@ public class GameBoardManager : MonoBehaviour
             {
                 Debug.Log("X > Z");
                 // We need to move right
-                if (diffX > 0 && TileIsTraversable(currX+1, currZ))
+                if (diffX > 0)
                 {
-                    Debug.Log("moving right");
-                    currX++;
-                    path.Add(GetTile(currX, currZ));
+                    if (TileIsTraversable(currX+1, currZ))
+                    {
+                        Debug.Log("moving right");
+                        currX++;
+                        path.Add(GetTile(currX, currZ));
+                    }
+                    else if (diffZ >= 0 && TileIsTraversable(currX+1, currZ+1))
+                    {
+                        Debug.Log("moving up right");
+                        currX++;
+                        currZ++;
+                        path.Add(GetTile(currX, currZ));
+                    }
+                    else if (diffZ <= 0 && TileIsTraversable(currX+1, currZ-1))
+                    {
+                        Debug.Log("moving bottom right");
+                        currX++;
+                        currZ--;
+                        path.Add(GetTile(currX, currZ));
+                    }
                 }
                 // We need to move left
-                else if (diffX < 0 && TileIsTraversable(currX-1, currZ))
+                else if (diffX < 0)
                 {
-                    Debug.Log("moving left");
-                    currX--;
-                    path.Add(GetTile(currX, currZ));
-                }
-                else if (diffZ == 0)
-                {
-                    if (diffX > 0)
+                    if (TileIsTraversable(currX-1, currZ))
                     {
-                        if (TileIsTraversable(currX+1, currZ+1))
-                        {
-                            Debug.Log("moving up right");
-                            currX++;
-                            currZ++;
-                            path.Add(GetTile(currX, currZ));
-                        }
-                        if (TileIsTraversable(currX+1, currZ-1))
-                        {
-                            Debug.Log("moving bottom right");
-                            currX++;
-                            currZ--;
-                            path.Add(GetTile(currX, currZ));
-                        }
+                        Debug.Log("moving left");
+                        currX--;
+                        path.Add(GetTile(currX, currZ));
                     }
-                    else
+                    else if (diffZ >= 0 && TileIsTraversable(currX-1, currZ+1))
                     {
-                        if (TileIsTraversable(currX-1, currZ+1))
-                        {
-                            Debug.Log("moving up left");
-                            currX--;
-                            currZ++;
-                            path.Add(GetTile(currX, currZ));
-                        }
-                        if (TileIsTraversable(currX-1, currZ-1))
-                        {
-                            Debug.Log("moving bottom left");
-                            currX--;
-                            currZ--;
-                            path.Add(GetTile(currX, currZ));
-                        }
+                        Debug.Log("moving up left");
+                        currX--;
+                        currZ++;
+                        path.Add(GetTile(currX, currZ));
+                    }
+                    else if (diffZ <= 0 && TileIsTraversable(currX-1, currZ-1))
+                    {
+                        Debug.Log("moving bottom left");
+                        currX--;
+                        currZ--;
+                        path.Add(GetTile(currX, currZ));
                     }
                 }
+                i++;
                 continue;
             }
             // We have further to go to get to our target Z
@@ -214,56 +220,55 @@ public class GameBoardManager : MonoBehaviour
             {
                 Debug.Log("Z > X");
                 // We need to move up
-                if (diffZ > 0 && TileIsTraversable(currX, currZ+1))
+                if (diffZ > 0)
                 {
-                    Debug.Log("moving up");
-                    currZ++;
-                    path.Add(GetTile(currX, currZ));
+                    if (TileIsTraversable(currX, currZ+1))
+                    {
+                        Debug.Log("moving up");
+                        currZ++;
+                        path.Add(GetTile(currX, currZ));
+                    }
+                    else if (diffX >= 0 && TileIsTraversable(currX+1, currZ+1))
+                    {
+                        Debug.Log("moving up right");
+                        currX++;
+                        currZ++;
+                        path.Add(GetTile(currX, currZ));
+                    }
+                    else if (diffX <= 0 && TileIsTraversable(currX-1, currZ+1))
+                    {
+                        Debug.Log("moving up left");
+                        currX--;
+                        currZ++;
+                        path.Add(GetTile(currX, currZ));
+                    }
+
                 }
                 // We need to move down
-                else if (diffZ < 0 && TileIsTraversable(currX, currZ-1))
+                else if (diffZ < 0)
                 {
-                    Debug.Log("moving down");
-                    currZ--;
-                    path.Add(GetTile(currX, currZ));
-                }
-                else if (diffX == 0)
-                {
-                    if (diffZ > 0)
+                    if (TileIsTraversable(currX, currZ-1))
                     {
-                        if (TileIsTraversable(currX+1, currZ+1))
-                        {
-                            Debug.Log("moving up right");
-                            currX++;
-                            currZ++;
-                            path.Add(GetTile(currX, currZ));
-                        }
-                        if (TileIsTraversable(currX-1, currZ+1))
-                        {
-                            Debug.Log("moving up left");
-                            currX--;
-                            currZ++;
-                            path.Add(GetTile(currX, currZ));
-                        }
+                        Debug.Log("moving down");
+                        currZ--;
+                        path.Add(GetTile(currX, currZ));
                     }
-                    else
+                    else if (diffX >= 0 && TileIsTraversable(currX+1, currZ-1))
                     {
-                        if (TileIsTraversable(currX+1, currZ-1))
-                        {
-                            Debug.Log("moving bottom right");
-                            currZ++;
-                            currZ--;
-                            path.Add(GetTile(currX, currZ));
-                        }
-                        if (TileIsTraversable(currX-1, currZ-1))
-                        {
-                            Debug.Log("moving bottom left");
-                            currX--;
-                            currZ--;
-                            path.Add(GetTile(currX, currZ));
-                        }
+                        Debug.Log("moving bottom right");
+                        currX++;
+                        currZ--;
+                        path.Add(GetTile(currX, currZ));
+                    }
+                    else if (diffX <= 0 && TileIsTraversable(currX-1, currZ-1))
+                    {
+                        Debug.Log("moving bottom left");
+                        currX--;
+                        currZ--;
+                        path.Add(GetTile(currX, currZ));
                     }
                 }
+                i++;
                 continue;
             }
             // Both X and Z are the same distance away
@@ -303,9 +308,9 @@ public class GameBoardManager : MonoBehaviour
             else
             {
                 Debug.LogError("No path could be found");
+                return null;
             }
-
-            Debug.Log(path[i++]);
+            i++;
         }
 
         return path;
