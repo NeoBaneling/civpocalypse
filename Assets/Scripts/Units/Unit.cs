@@ -146,7 +146,7 @@ public class Unit : MonoBehaviour
             {
                 SetUnitToTile(path[i]);
                 EventManager.TriggerEvent("UnitMoveEvent");
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.2f);
             }
         }
     }

@@ -31,8 +31,9 @@ public class Player : MonoBehaviour
         units = new List<GameObject>();
         CreateBoardTiles();
         CreateBasicUnit();
+        CreateBasicUnit();
+        CreateBasicUnit();
         // CreateSettlers();
-        RemoveFog(units[0].GetComponent<Unit>().GetCoords()[0], units[0].GetComponent<Unit>().GetCoords()[1]);
     }
 
     /**
@@ -91,6 +92,7 @@ public class Player : MonoBehaviour
         } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
         units.Add(UnitManager.Instance.CreateUnit("BasicUnit", x, z, faction));
         EventManager.TriggerEvent("UnitGeneratedEvent");
+        RemoveFog(x, z);
     }
 
     /**
