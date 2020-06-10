@@ -22,7 +22,9 @@ public class Unit : MonoBehaviour
     private bool _isSelected;
     public bool isSelected { get; set; }
     private bool canMove = false;
+    // A set of movements that detail how to get from point A to point B
     private List<GameObject> path = new List<GameObject>();
+
     // Start is called before the first frame update
     void Start()
     {
@@ -120,7 +122,6 @@ public class Unit : MonoBehaviour
         if (type == "Mountain" || type == "Water") return;
         if (System.Math.Abs(arr[0] - x) > speed || System.Math.Abs(arr[1] - z) > speed) return;
 
-        Debug.Log("---We're gonna get ourselves a path.");
         path = GameBoardManager.Instance.GetPath(x,z,arr[0],arr[1]);
         canMove = false;
         if (path != null && path.Count > 0)

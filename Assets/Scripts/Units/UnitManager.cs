@@ -61,9 +61,19 @@ public class UnitManager : MonoBehaviour
         return unit;
     }
 
+    /**
+     * Cycles through all active units (i.e., not defending) and populates five
+     * different lists (one for each faction). Then, it gives each list to the
+     * appropriate faction.
+     **/
+    public void GatherActiveUnits()
+    {
+
+    }
+
     void HighlightUnit()
     {
-        GameObject unit = GameObject.FindGameObjectsWithTag("UnitSelected")[0];
+        GameObject unit = GameObject.FindWithTag("UnitSelected");
         selectedUnit = unit;
     }
 }
