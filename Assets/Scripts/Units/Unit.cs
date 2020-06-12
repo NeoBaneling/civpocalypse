@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
-    public string name;
+    // Unit stats
+    public string unitName;
     public int speed;
     public int attack;
     public int defense;
@@ -13,37 +14,47 @@ public class Unit : MonoBehaviour
     public Material selectedM;
 
     [SerializeField]
-    private string _faction;
-    public string faction { get; set; }
+    private Faction _faction;
+    public Faction faction { get; set; }
     private int x;
     private int z;
 
     [SerializeField]
     private bool _isSelected;
     public bool isSelected { get; set; }
+    private bool checkForTileClick = false;
     private bool canMove = false;
+    private int currSteps = 0;
+    private bool s_IsActive;
+    public bool IsActive { get; set; }
     // A set of movements that detail how to get from point A to point B
-    private List<GameObject> path = new List<GameObject>();
+    private Queue<GameObject> path = new Queue<GameObject>();
 
     // Start is called before the first frame update
     void Start()
     {
         SetUnitToTile(GameBoardManager.Instance.GetTile((int)transform.position.x/3, (int)transform.position.z/3));
         isSelected = false;
+        IsActive = true;
     }
 
     void OnEnable()
     {
+        EventManager.StartListening("MoveUnitEvent", MoveUnit);
     }
 
     void OnDisable()
     {
+        EventManager.StopListening("MoveUnitEvent", MoveUnit);
     }
 
     // Update is called once per frame
     void Update()
     {
-        CheckMouseClick();
+        if (checkForTileClick)
+        {
+            CheckMouseClick();
+        }
         if (canMove)
         {
             TryToMoveUnit();
@@ -51,7 +62,7 @@ public class Unit : MonoBehaviour
     }
 
     // A creation function to set up all necessary parameters for a new Unit
-    public void Setup(string faction, int x, int z, GameObject tile, bool isSelected)
+    public void Setup(Faction faction, int x, int z, GameObject tile, bool isSelected)
     {
         this.faction = faction;
         this.isSelected = isSelected;
@@ -75,6 +86,32 @@ public class Unit : MonoBehaviour
         return arr;
     }
 
+    // Just switches whether the unit is selected
+    public void ToggleIsSelected()
+    {
+        Debug.Log(this.gameObject+" has been hit with a toggle");
+        SetIsSelected(!isSelected);
+    }
+
+    // Handles all the flipping of schtuff when a unit is selected
+    private void SetIsSelected(bool value)
+    {
+        isSelected = value;
+        if (isSelected)
+        {
+            Debug.Log("We are selected");
+            GetComponent<MeshRenderer>().material = selectedM;
+            tag = "UnitSelected";
+            EventManager.TriggerEvent("UnitSelectedEvent");
+        }
+        else
+        {
+            Debug.Log("No longer selected");
+            GetComponent<MeshRenderer>().material = baseM;
+            tag = "UnitDeselected";
+        }
+    }
+
     private void CheckMouseClick()
     {
         if (Input.GetMouseButtonDown(0))
@@ -86,20 +123,16 @@ public class Unit : MonoBehaviour
             {
                 if (!isSelected && hit.transform.gameObject == this.gameObject)
                 {
-                    isSelected = !isSelected;
-                    GetComponent<MeshRenderer>().material = selectedM;
-                    tag = "UnitSelected";
-                    EventManager.TriggerEvent("UnitClickEvent");
+                    ToggleIsSelected();
                 }
                 else if (isSelected)
                 {
                     if (GameBoardManager.Instance.selectedTile)
                     {
                         canMove = true;
+                        checkForTileClick = false;
                     }
-                    isSelected = !isSelected;
-                    GetComponent<MeshRenderer>().material = baseM;
-                    tag = "UnitDeselected";
+                    ToggleIsSelected();
                 }
             }
         }
@@ -114,17 +147,20 @@ public class Unit : MonoBehaviour
         transform.position = new Vector3(arr[0]*3, tile.GetComponent<Tile>().height + transform.lossyScale.y, arr[1]*3);
     }
 
+    // Gets the selected tile for the unit to move to, and then asks the game board
+    // manager to build a path from the unit's current position to the selected tile
+    //
+    // If no path is returned from the game board manager, we just don't do anything
     private void TryToMoveUnit()
     {
         GameObject selectedTile = GameBoardManager.Instance.selectedTile;
         int[] arr = selectedTile.GetComponent<Tile>().GetCoords();
         string type = selectedTile.GetComponent<Tile>().type;
         if (type == "Mountain" || type == "Water") return;
-        if (System.Math.Abs(arr[0] - x) > speed || System.Math.Abs(arr[1] - z) > speed) return;
 
         path = GameBoardManager.Instance.GetPath(x,z,arr[0],arr[1]);
         canMove = false;
-        if (path != null && path.Count > 0)
+        if (path != null)
         {
             StartCoroutine("MoveToTile");
         }
@@ -138,17 +174,44 @@ public class Unit : MonoBehaviour
         return System.Math.Abs(endX - transform.position.x/3) <= speed && System.Math.Abs(endZ - transform.position.z/3) <= speed;
     }
 
-    // Temporary element to watch units move along paths
+    // Moves the unit utilizing the built path a limited number of steps
     private IEnumerator MoveToTile()
     {
-        for (int i = 0; i < path.Count; i++)
+        while (currSteps < speed && path.Count > 0)
         {
-            if (path[i] != null)
-            {
-                SetUnitToTile(path[i]);
-                EventManager.TriggerEvent("UnitMoveEvent");
-                yield return new WaitForSeconds(0.2f);
-            }
+            SetUnitToTile(path.Dequeue());
+            currSteps++;
+            EventManager.TriggerEvent("UnitMovedEvent");
+            // Temporary element to watch units move along paths
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        // We have exhausted all possible moves to get to our goal
+        if (currSteps == speed)
+        {
+            currSteps = 0;
+            SetIsSelected(false);
+            yield return new WaitForSeconds(0.2f);
+            Debug.Log("Triggering Unit Finished Moving Event");
+            EventManager.TriggerEvent("UnitFinishedMovingEvent");
+        }
+        // We still have some steps left and can move one more space
+        else
+        {
+            SetIsSelected(true);
+            checkForTileClick = true;
+        }
+    }
+
+    private void MoveUnit()
+    {
+        if (path.Count > 0 && isSelected)
+        {
+            StartCoroutine("MoveToTile");
+        }
+        else
+        {
+            checkForTileClick = true;
         }
     }
 }

@@ -78,16 +78,19 @@ public class GameBoardManager : MonoBehaviour
         catch (System.IndexOutOfRangeException e)
         {
             Debug.LogError("The location " + x + ", " + z + " is not valid.");
+            Debug.LogError(e);
             return null;
         }
         catch (System.NullReferenceException e)
         {
             Debug.LogError("Tile could not be found at location " + x + ", " + z + ".");
+            Debug.LogError(e);
             return null;
         }
         catch (UnityException e)
         {
             Debug.LogError("An exception occured.");
+            Debug.LogError(e);
             return null;
         }
     }
@@ -142,11 +145,11 @@ public class GameBoardManager : MonoBehaviour
      * The function determines which to prioritize first : latitude (x) or longitude (z)
      * If both of these are equal, it just acts in a diagonal direction.
      **/
-    public List<GameObject> GetPath(int startX, int startZ, int targetX, int targetZ)
+    public Queue<GameObject> GetPath(int startX, int startZ, int targetX, int targetZ)
     {
         int currX = startX;
         int currZ = startZ;
-        List<GameObject> path = new List<GameObject>();
+        Queue<GameObject> path = new Queue<GameObject>();
         int i = 0;
 
         while ((currX != targetX || currZ != targetZ) && i < 8)
@@ -164,19 +167,19 @@ public class GameBoardManager : MonoBehaviour
                     if (TileIsTraversable(currX+1, currZ))
                     {
                         currX++;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                     else if (diffZ >= 0 && TileIsTraversable(currX+1, currZ+1))
                     {
                         currX++;
                         currZ++;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                     else if (diffZ <= 0 && TileIsTraversable(currX+1, currZ-1))
                     {
                         currX++;
                         currZ--;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                 }
                 // We need to move left
@@ -185,19 +188,19 @@ public class GameBoardManager : MonoBehaviour
                     if (TileIsTraversable(currX-1, currZ))
                     {
                         currX--;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                     else if (diffZ >= 0 && TileIsTraversable(currX-1, currZ+1))
                     {
                         currX--;
                         currZ++;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                     else if (diffZ <= 0 && TileIsTraversable(currX-1, currZ-1))
                     {
                         currX--;
                         currZ--;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                 }
                 i++;
@@ -212,19 +215,19 @@ public class GameBoardManager : MonoBehaviour
                     if (TileIsTraversable(currX, currZ+1))
                     {
                         currZ++;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                     else if (diffX >= 0 && TileIsTraversable(currX+1, currZ+1))
                     {
                         currX++;
                         currZ++;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                     else if (diffX <= 0 && TileIsTraversable(currX-1, currZ+1))
                     {
                         currX--;
                         currZ++;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
 
                 }
@@ -234,19 +237,19 @@ public class GameBoardManager : MonoBehaviour
                     if (TileIsTraversable(currX, currZ-1))
                     {
                         currZ--;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                     else if (diffX >= 0 && TileIsTraversable(currX+1, currZ-1))
                     {
                         currX++;
                         currZ--;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                     else if (diffX <= 0 && TileIsTraversable(currX-1, currZ-1))
                     {
                         currX--;
                         currZ--;
-                        path.Add(GetTile(currX, currZ));
+                        path.Enqueue(GetTile(currX, currZ));
                     }
                 }
                 i++;
@@ -258,28 +261,28 @@ public class GameBoardManager : MonoBehaviour
             {
                 currX++;
                 currZ++;
-                path.Add(GetTile(currX, currZ));
+                path.Enqueue(GetTile(currX, currZ));
             }
             // Bottom right
             else if (diffX > 0 && diffZ < 0 && TileIsTraversable(currX+1, currZ-1))
             {
                 currX++;
                 currZ--;
-                path.Add(GetTile(currX, currZ));
+                path.Enqueue(GetTile(currX, currZ));
             }
             // Bottom left
             else if (diffX < 0 && diffZ < 0 && TileIsTraversable(currX-1, currZ-1))
             {
                 currX--;
                 currZ--;
-                path.Add(GetTile(currX, currZ));
+                path.Enqueue(GetTile(currX, currZ));
             }
             // Top left
             else if (diffX < 0 && diffZ > 0 && TileIsTraversable(currX-1, currZ+1))
             {
                 currX--;
                 currZ++;
-                path.Add(GetTile(currX, currZ));
+                path.Enqueue(GetTile(currX, currZ));
             }
             else
             {

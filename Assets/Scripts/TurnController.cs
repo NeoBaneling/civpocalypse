@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class TurnController : MonoBehaviour
 {
-    private int s_Turn = 0;
-    public int Turn { get; }
-    private enum Faction { MYTHICAL, MUTANTS, EVOLVED, ZOMBIES, ROBOTS };
+    [SerializeField]
+    private int _turn;
+    public int turn { get; set; }
     private Faction currFaction;
 
     private UnitManager unitManager;
@@ -14,6 +14,7 @@ public class TurnController : MonoBehaviour
     void Start()
     {
         unitManager = GameObject.FindWithTag("UnitManager").GetComponent<UnitManager>();
+        turn = 0;
     }
 
     // Update is called once per frame
@@ -39,19 +40,32 @@ public class TurnController : MonoBehaviour
     {
         unitManager.GatherActiveUnits();
         currFaction = Faction.MYTHICAL;
+        Debug.Log("Turn: " + turn);
+        EventManager.TriggerEvent("TurnStartEvent");
     }
 
     private void TriggerNextFaction()
     {
-        currFaction++;
-        Debug.Log("We are on Faction " + currFaction);
+        if (currFaction == Faction.ROBOT)
+        {
+            currFaction = Faction.MYTHICAL;
+        }
+        else
+        {
+            currFaction++;
+        }
+
         if (currFaction == Faction.MYTHICAL)
         {
+            turn++;
             StartNextTurn();
         }
         else
         {
-            // Tell the next faction to start doing stuff
+            // TEMPORARY CODE
+            // Eventually we will tell the next faction to start doing stuff
+            // But since there are no other factions, we're just gonna do this
+            EventManager.TriggerEvent("TurnCompleteEvent");
         }
     }
 }

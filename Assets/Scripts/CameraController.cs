@@ -6,13 +6,13 @@ public class CameraController : MonoBehaviour
 {
     private float speedLat = 5.0f;
     private float speedY = 0.5f;
-    private float minY = 4f;
+    private float minY = 6f;
     private float maxY = 36f;
 
     // Rotation vars
-    private float smooth = 0.5f;
-    private float minXRot = 45f;
-    private float maxXRot = 75f;
+    // private float smooth = 0.5f;
+    // private float minXRot = 45f;
+    // private float maxXRot = 75f;
 
     private bool atTarget = true;
     private Vector3 targetPos;
@@ -37,11 +37,12 @@ public class CameraController : MonoBehaviour
         // needs to move to.
         if (!atTarget)
         {
-            float step = speedLat * Time.deltaTime;
+            float step = speedLat * Time.deltaTime * Vector3.Distance(transform.position, targetPos);
             transform.position = Vector3.MoveTowards(transform.position, targetPos, step);
-            if (transform.position == targetPos)
+            if (Vector3.Distance(transform.position, targetPos) < 0.05f)
             {
                 atTarget = true;
+                EventManager.TriggerEvent("MoveUnitEvent");
             }
         }
     }
@@ -49,11 +50,13 @@ public class CameraController : MonoBehaviour
     void OnEnable()
     {
         EventManager.StartListening("UnitGeneratedEvent", MoveCameraToUnit);
+        EventManager.StartListening("UnitSelectedEvent", MoveCameraToUnit);
     }
 
     void OnDisable()
     {
         EventManager.StopListening("UnitGeneratedEvent", MoveCameraToUnit);
+        EventManager.StopListening("UnitSelectedEvent", MoveCameraToUnit);
     }
 
     private void UpdateKeyboardInput()

@@ -109,7 +109,6 @@ public class GameBoardPopulator : MonoBehaviour
     {
         List<int> weightedIndeces = new List<int>();
         int currWeightedIndex = 0;
-        int prevIndex = 0;
         foreach (float weight in weights)
         {
             int targetIndex = (int) Mathf.Round(weight*100);

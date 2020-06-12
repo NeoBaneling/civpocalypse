@@ -36,19 +36,21 @@ public class UnitManager : MonoBehaviour
 
     void OnEnable()
     {
-        EventManager.StartListening("UnitClickEvent", HighlightUnit);
+        EventManager.StartListening("UnitSelectedEvent", HighlightUnit);
+        EventManager.StartListening("UnitFinishedMovingEvent", DehilightUnit);
     }
 
     void OnDisable()
     {
-        EventManager.StopListening("UnitClickEvent", HighlightUnit);
+        EventManager.StopListening("UnitSelectedEvent", HighlightUnit);
+        EventManager.StopListening("UnitFinishedMovingEvent", DehilightUnit);
     }
 
     /**
      * Instantiates a unit with the specified string name and player name.
      * Requires a valid unit name to work successfully.
      **/
-    public GameObject CreateUnit(string name, int x, int z, string playerFaction)
+    public GameObject CreateUnit(string name, int x, int z, Faction playerFaction)
     {
         GameObject unit = (GameObject) Instantiate(Resources.Load("Prefabs/Units/"+name), new Vector3(0, 0, 0), Quaternion.identity, null);
         unit.GetComponent<Unit>().Setup(playerFaction, x, z, GameBoardManager.Instance.GetTile(x, z), true);
@@ -62,18 +64,61 @@ public class UnitManager : MonoBehaviour
     }
 
     /**
-     * Cycles through all active units (i.e., not defending) and populates five
+     * Cycles through all active units (i.e. not defending) and populates five
      * different lists (one for each faction). Then, it gives each list to the
      * appropriate faction.
+     *
+     * Currently only works for the mythical list, for the player.
      **/
     public void GatherActiveUnits()
     {
+        Queue<GameObject> mythicalUnits = new Queue<GameObject>();
+        Queue<GameObject> mutantUnits = new Queue<GameObject>();
+        Queue<GameObject> evolvedUnits = new Queue<GameObject>();
+        Queue<GameObject> zombieUnits = new Queue<GameObject>();
+        Queue<GameObject> robotUnits = new Queue<GameObject>();
 
+        foreach (GameObject unit in units[0])
+        {
+            if (unit.GetComponent<Unit>().IsActive)
+            {
+                Faction faction = unit.GetComponent<Unit>().faction;
+                if (faction == Faction.MYTHICAL)
+                {
+                    mythicalUnits.Enqueue(unit);
+                }
+                if (faction == Faction.MUTANT)
+                {
+                    mutantUnits.Enqueue(unit);
+                }
+                if (faction == Faction.EVOLVED)
+                {
+                    evolvedUnits.Enqueue(unit);
+                }
+                if (faction == Faction.ZOMBIE)
+                {
+                    zombieUnits.Enqueue(unit);
+                }
+                if (faction == Faction.ROBOT)
+                {
+                    robotUnits.Enqueue(unit);
+                }
+            }
+        }
+
+        GameObject.Find("Player").GetComponent<Player>().SetActiveUnits(mythicalUnits);
     }
 
-    void HighlightUnit()
+    private void HighlightUnit()
     {
+        Debug.Log("We're highlighting the unit");
         GameObject unit = GameObject.FindWithTag("UnitSelected");
         selectedUnit = unit;
+    }
+
+    private void DehilightUnit()
+    {
+        Debug.Log("We're dehighlighting the unit");
+        selectedUnit = null;
     }
 }

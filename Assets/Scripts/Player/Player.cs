@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private string faction = "Mythical";
+    private Faction faction = Faction.MYTHICAL;
     private GameObject[,] boardTiles;
+
+    // Unit variables
     private List<GameObject> units;
+    private Queue<GameObject> activeUnits;
+    private bool hasActiveUnits;
+    private GameObject currActiveUnit;
 
     void Start()
     {
@@ -15,12 +20,21 @@ public class Player : MonoBehaviour
 
     void OnEnable()
     {
-        EventManager.StartListening("UnitMoveEvent", RemoveFogWithUnit);
+        EventManager.StartListening("UnitMovedEvent", RemoveFogWithUnit);
+        EventManager.StartListening("TurnStartEvent", BeginTurn);
+        EventManager.StartListening("UnitFinishedMovingEvent", ToNextUnit);
     }
 
     void OnDisable()
     {
-        EventManager.StopListening("UnitMoveEvent", RemoveFogWithUnit);
+        EventManager.StopListening("UnitMovedEvent", RemoveFogWithUnit);
+        EventManager.StopListening("TurnStartEvent", BeginTurn);
+        EventManager.StopListening("UnitFinishedMovingEvent", ToNextUnit);
+    }
+
+    public void SetActiveUnits(Queue<GameObject> activeUnits)
+    {
+        this.activeUnits = activeUnits;
     }
 
     /**
@@ -29,10 +43,13 @@ public class Player : MonoBehaviour
     private void InstantiatePlayer()
     {
         units = new List<GameObject>();
+        activeUnits = new Queue<GameObject>();
+        hasActiveUnits = false;
+        currActiveUnit = null;
         CreateBoardTiles();
         CreateBasicUnit();
         CreateBasicUnit();
-        CreateBasicUnit();
+        CreateBasicSpeedyUnit();
         // CreateSettlers();
     }
 
@@ -90,7 +107,27 @@ public class Player : MonoBehaviour
             x = Random.Range(0, GameBoardManager.Instance.boardSize);
             z = Random.Range(2, GameBoardManager.Instance.boardSize - 2);
         } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
+
         units.Add(UnitManager.Instance.CreateUnit("BasicUnit", x, z, faction));
+        EventManager.TriggerEvent("UnitGeneratedEvent");
+        RemoveFog(x, z);
+    }
+
+    /**
+     * Finds an adequate spot for settlers to exist, and then creates them.
+     **/
+    private void CreateBasicSpeedyUnit()
+    {
+        int x = 0;
+        int z = 0;
+        do
+        {
+            // +- 2 cause we don't want to end up on ice
+            x = Random.Range(0, GameBoardManager.Instance.boardSize);
+            z = Random.Range(2, GameBoardManager.Instance.boardSize - 2);
+        } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
+
+        units.Add(UnitManager.Instance.CreateUnit("BasicSpeedyUnit", x, z, faction));
         EventManager.TriggerEvent("UnitGeneratedEvent");
         RemoveFog(x, z);
     }
@@ -108,18 +145,37 @@ public class Player : MonoBehaviour
             x = Random.Range(2, GameBoardManager.Instance.boardSize - 2);
             z = Random.Range(0, GameBoardManager.Instance.boardSize);
         } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
+
         units.Add(UnitManager.Instance.CreateUnit("Settler", x, z, faction));
         EventManager.TriggerEvent("UnitGeneratedEvent");
+        RemoveFog(x, z);
     }
 
-    void RemoveFogWithUnit()
+    private void RemoveFogWithUnit()
     {
-        GameObject unit = UnitManager.Instance.selectedUnit;
-        if (unit.GetComponent<Unit>().faction == this.faction)
+        int[] coords = currActiveUnit.GetComponent<Unit>().GetCoords();
+        RemoveFog(coords[0], coords[1]);
+    }
+
+    private void BeginTurn()
+    {
+        ToNextUnit();
+    }
+
+    private void ToNextUnit()
+    {
+        Debug.Log("It's time to get another unit");
+        if (activeUnits.Count > 0)
         {
-            int[] coords = unit.GetComponent<Unit>().GetCoords();
-            Debug.Log(coords[0] +", "+coords[1]);
-            RemoveFog(coords[0], coords[1]);
+            currActiveUnit = activeUnits.Dequeue();
+            Debug.Log(currActiveUnit);
+            hasActiveUnits = true;
+            currActiveUnit.GetComponent<Unit>().ToggleIsSelected();
+        }
+        else
+        {
+            hasActiveUnits = false;
+            EventManager.TriggerEvent("TurnCompleteEvent");
         }
     }
 }
