@@ -62,10 +62,11 @@ public class Unit : MonoBehaviour
     }
 
     // A creation function to set up all necessary parameters for a new Unit
-    public void Setup(Faction faction, int x, int z, GameObject tile, bool isSelected)
+    public void Setup(Faction faction, int x, int z, GameObject tile, bool isSelected, string name)
     {
         this.faction = faction;
         this.isSelected = isSelected;
+        this.unitName = name;
         SetCoords(x, z);
         SetUnitToTile(tile);
         baseM = (Material)Resources.Load("Materials/"+faction, typeof (Material));

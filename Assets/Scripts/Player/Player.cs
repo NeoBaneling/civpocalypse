@@ -13,9 +13,23 @@ public class Player : MonoBehaviour
     private bool hasActiveUnits;
     private GameObject currActiveUnit;
 
+    // City variables
+    private List<GameObject> cities;
+    private Queue<GameObject> activeCities;
+    private bool hasActiveCities;
+    private GameObject currActiveCity;
+
     void Start()
     {
         InstantiatePlayer();
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Return) && currActiveUnit.GetComponent<Unit>().unitName.Equals("Settler"))
+        {
+            CreateCity();
+        }
     }
 
     void OnEnable()
@@ -43,14 +57,17 @@ public class Player : MonoBehaviour
     private void InstantiatePlayer()
     {
         units = new List<GameObject>();
+        cities = new List<GameObject>();
         activeUnits = new Queue<GameObject>();
         hasActiveUnits = false;
+        hasActiveCities = false;
         currActiveUnit = null;
+        currActiveCity = null;
         CreateBoardTiles();
-        CreateBasicUnit();
+        // CreateBasicUnit();
         CreateBasicUnit();
         CreateBasicSpeedyUnit();
-        // CreateSettlers();
+        CreateSettlers();
     }
 
     /**
@@ -94,8 +111,67 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void RemoveFogWithUnit()
+    {
+        int[] coords = currActiveUnit.GetComponent<Unit>().GetCoords();
+        RemoveFog(coords[0], coords[1]);
+    }
+
+    private void BeginTurn()
+    {
+        ToNextUnit();
+    }
+
+    private void ToNextUnit()
+    {
+        Debug.Log("It's time to get another unit");
+        if (activeUnits.Count > 0)
+        {
+            currActiveUnit = activeUnits.Dequeue();
+            Debug.Log(currActiveUnit);
+            hasActiveUnits = true;
+            currActiveUnit.GetComponent<Unit>().ToggleIsSelected();
+        }
+        else
+        {
+            hasActiveUnits = false;
+            EventManager.TriggerEvent("TurnCompleteEvent");
+        }
+    }
+
+    private void CreateCity()
+    {
+        int[] settlerCoords = currActiveUnit.GetComponent<Unit>().GetCoords();
+        int x = settlerCoords[0];
+        int z = settlerCoords[1];
+
+        for (int i = 0; i < units.Count; i++)
+        {
+            GameObject unit = units[i];
+            Unit unitInfo = unit.GetComponent<Unit>();
+            int[] coords = unitInfo.GetCoords();
+            if (unitInfo.unitName.Equals("Settler") && coords[0] == x && coords[1] == z)
+            {
+                Destroy(unit);
+                units[i] = null;
+                break;
+            }
+        }
+        cities.Add(CityManager.Instance.CreateCity(x, z, faction));
+        EventManager.TriggerEvent("UnitFinishedMovingEvent");
+        UnitManager.Instance.DestroyUnit("Settler", x, z, faction);
+    }
+
+    ///////////////////////////////
+    //
+    //
+    //  BEGIN UNIT INSTANTIATION METHODS
+    //
+    //
+    ///////////////////////////////
+
     /**
-     * Finds an adequate spot for settlers to exist, and then creates them.
+     * Finds an adequate spot for the unit to exist, and then creates them.
      **/
     private void CreateBasicUnit()
     {
@@ -114,7 +190,7 @@ public class Player : MonoBehaviour
     }
 
     /**
-     * Finds an adequate spot for settlers to exist, and then creates them.
+     * Finds an adequate spot for the unit to exist, and then creates them.
      **/
     private void CreateBasicSpeedyUnit()
     {
@@ -149,33 +225,5 @@ public class Player : MonoBehaviour
         units.Add(UnitManager.Instance.CreateUnit("Settler", x, z, faction));
         EventManager.TriggerEvent("UnitGeneratedEvent");
         RemoveFog(x, z);
-    }
-
-    private void RemoveFogWithUnit()
-    {
-        int[] coords = currActiveUnit.GetComponent<Unit>().GetCoords();
-        RemoveFog(coords[0], coords[1]);
-    }
-
-    private void BeginTurn()
-    {
-        ToNextUnit();
-    }
-
-    private void ToNextUnit()
-    {
-        Debug.Log("It's time to get another unit");
-        if (activeUnits.Count > 0)
-        {
-            currActiveUnit = activeUnits.Dequeue();
-            Debug.Log(currActiveUnit);
-            hasActiveUnits = true;
-            currActiveUnit.GetComponent<Unit>().ToggleIsSelected();
-        }
-        else
-        {
-            hasActiveUnits = false;
-            EventManager.TriggerEvent("TurnCompleteEvent");
-        }
     }
 }

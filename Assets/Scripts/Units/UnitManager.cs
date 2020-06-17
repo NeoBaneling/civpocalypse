@@ -18,7 +18,7 @@ public class UnitManager : MonoBehaviour
 
     void Awake()
     {
-        // This handles the GameBoardManager instance
+        // This handles the UnitManager instance
         if (s_Instance == null)
         {
             s_Instance = this;
@@ -53,7 +53,7 @@ public class UnitManager : MonoBehaviour
     public GameObject CreateUnit(string name, int x, int z, Faction playerFaction)
     {
         GameObject unit = (GameObject) Instantiate(Resources.Load("Prefabs/Units/"+name), new Vector3(0, 0, 0), Quaternion.identity, null);
-        unit.GetComponent<Unit>().Setup(playerFaction, x, z, GameBoardManager.Instance.GetTile(x, z), true);
+        unit.GetComponent<Unit>().Setup(playerFaction, x, z, GameBoardManager.Instance.GetTile(x, z), true, name);
         selectedUnit = unit;
         if (units[0] == null)
         {
@@ -61,6 +61,26 @@ public class UnitManager : MonoBehaviour
         }
         units[0].Add(unit);
         return unit;
+    }
+
+    /**
+     * Searches for a specific unit using the player faction, unit name, and location,
+     * then destroys it
+     **/
+    public void DestroyUnit(string name, int x, int z, Faction playerFaction)
+    {
+        for (int i = 0; i < units[0].Count; i++)
+        {
+            GameObject unit = units[0][i];
+            Unit unitInfo = unit.GetComponent<Unit>();
+            int[] coords = unitInfo.GetCoords();
+            if (unitInfo.unitName.Equals(name) && unitInfo.faction.Equals(playerFaction) && coords[0] == x && coords[1] == z)
+            {
+                Destroy(unit);
+                units[0][i] = null;
+                break;
+            }
+        }
     }
 
     /**
@@ -80,7 +100,7 @@ public class UnitManager : MonoBehaviour
 
         foreach (GameObject unit in units[0])
         {
-            if (unit.GetComponent<Unit>().IsActive)
+            if (unit != null && unit.GetComponent<Unit>().IsActive)
             {
                 Faction faction = unit.GetComponent<Unit>().faction;
                 if (faction == Faction.MYTHICAL)
