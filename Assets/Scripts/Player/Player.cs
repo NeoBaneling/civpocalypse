@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return) && currActiveUnit.GetComponent<Unit>().unitName.Equals("Settler"))
+        if (Input.GetKeyDown(KeyCode.Return) && currActiveUnit.GetComponent<Unit>().UnitName.Equals("Settler"))
         {
             CreateCity();
         }
@@ -83,7 +83,7 @@ public class Player : MonoBehaviour
         {
             for (int z = 0; z < boardSize; z++)
             {
-                int[] tileCoords = gameBoardTiles[x,z].GetComponent<Tile>().GetCoords();
+                Vector2Int tileCoords = gameBoardTiles[x,z].GetComponent<Tile>().Coords;
                 GameObject newFog = Instantiate(fog, new Vector3(0, 0, 0), Quaternion.identity, null);
                 newFog.transform.position = newFog.transform.position + new Vector3(tileCoords[0]*3, newFog.transform.lossyScale.y/2, tileCoords[1]*3);
                 boardTiles[x,z] = newFog;
@@ -111,10 +111,14 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void RemoveFog(Vector2Int coords)
+    {
+        RemoveFog(coords[0], coords[1]);
+    }
+
     private void RemoveFogWithUnit()
     {
-        int[] coords = currActiveUnit.GetComponent<Unit>().GetCoords();
-        RemoveFog(coords[0], coords[1]);
+        RemoveFog(currActiveUnit.GetComponent<Unit>().Coords);
     }
 
     private void BeginTurn()
@@ -141,25 +145,23 @@ public class Player : MonoBehaviour
 
     private void CreateCity()
     {
-        int[] settlerCoords = currActiveUnit.GetComponent<Unit>().GetCoords();
-        int x = settlerCoords[0];
-        int z = settlerCoords[1];
+        Vector2Int settlerCoords = currActiveUnit.GetComponent<Unit>().Coords;
 
         for (int i = 0; i < units.Count; i++)
         {
             GameObject unit = units[i];
             Unit unitInfo = unit.GetComponent<Unit>();
-            int[] coords = unitInfo.GetCoords();
-            if (unitInfo.unitName.Equals("Settler") && coords[0] == x && coords[1] == z)
+            Vector2Int coords = unitInfo.Coords;
+            if (unitInfo.UnitName.Equals("Settler") && coords.Equals(settlerCoords))
             {
                 Destroy(unit);
                 units[i] = null;
                 break;
             }
         }
-        cities.Add(CityManager.Instance.CreateCity(x, z, faction));
+        cities.Add(CityManager.Instance.CreateCity(settlerCoords, faction));
         EventManager.TriggerEvent("UnitFinishedMovingEvent");
-        UnitManager.Instance.DestroyUnit("Settler", x, z, faction);
+        UnitManager.Instance.DestroyUnit("Settler", settlerCoords, faction);
     }
 
     ///////////////////////////////
@@ -184,7 +186,7 @@ public class Player : MonoBehaviour
             z = Random.Range(2, GameBoardManager.Instance.boardSize - 2);
         } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
 
-        units.Add(UnitManager.Instance.CreateUnit("BasicUnit", x, z, faction));
+        units.Add(UnitManager.Instance.CreateUnit("BasicUnit", new Vector2Int(x,z), faction));
         EventManager.TriggerEvent("UnitGeneratedEvent");
         RemoveFog(x, z);
     }
@@ -203,7 +205,7 @@ public class Player : MonoBehaviour
             z = Random.Range(2, GameBoardManager.Instance.boardSize - 2);
         } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
 
-        units.Add(UnitManager.Instance.CreateUnit("BasicSpeedyUnit", x, z, faction));
+        units.Add(UnitManager.Instance.CreateUnit("BasicSpeedyUnit", new Vector2Int(x,z), faction));
         EventManager.TriggerEvent("UnitGeneratedEvent");
         RemoveFog(x, z);
     }
@@ -222,7 +224,7 @@ public class Player : MonoBehaviour
             z = Random.Range(0, GameBoardManager.Instance.boardSize);
         } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
 
-        units.Add(UnitManager.Instance.CreateUnit("Settler", x, z, faction));
+        units.Add(UnitManager.Instance.CreateUnit("Settler", new Vector2Int(x,z), faction));
         EventManager.TriggerEvent("UnitGeneratedEvent");
         RemoveFog(x, z);
     }

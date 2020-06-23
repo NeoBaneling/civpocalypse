@@ -10,8 +10,7 @@ public class Tile : MonoBehaviour
     private bool mouseOver = false;
     private GameObject generatedHighlight;
 
-    private int x;
-    private int z;
+    public Vector2Int Coords { get; set; }
 
     private float _height;
     public float height { get; set; }
@@ -61,19 +60,5 @@ public class Tile : MonoBehaviour
         {
             EventManager.TriggerEvent("TileClickEvent");
         }
-    }
-
-    public void SetCoords(int x, int z)
-    {
-        this.x = x;
-        this.z = z;
-    }
-
-    public int[] GetCoords()
-    {
-        int[] arr = new int[2];
-        arr[0] = x;
-        arr[1] = z;
-        return arr;
     }
 }

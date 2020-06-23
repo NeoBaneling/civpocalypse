@@ -72,7 +72,7 @@ public class GameBoardPopulator : MonoBehaviour
                 int tileIndex = ReturnWeightedIndex(weights);
                 GameObject tile = Instantiate(boardTiles[tileIndex], new Vector3(0, 0, 0), Quaternion.identity, null);
                 tile.transform.position = tile.transform.position + new Vector3(col*3, tile.transform.lossyScale.y/2, row*3);
-                tile.GetComponent<Tile>().SetCoords(col, row);
+                tile.GetComponent<Tile>().Coords = new Vector2Int(col, row);
                 GameBoardManager.Instance.SetTile(tile, col, row);
             }
         }
@@ -93,10 +93,10 @@ public class GameBoardPopulator : MonoBehaviour
                     {
                         if (oldTile.GetComponent<Tile>().type != "Ice" && oldTile.GetComponent<Tile>().type != "Water")
                         {
-                            int[] newPos = oldTile.GetComponent<Tile>().GetCoords();
+                            Vector2Int newPos = oldTile.GetComponent<Tile>().Coords;
                             GameObject newTile = Instantiate(boardTiles[6], new Vector3(0, 0, 0), Quaternion.identity, null);
                             newTile.transform.position = new Vector3(newPos[0]*3, newTile.transform.lossyScale.y/2, newPos[1]*3);
-                            newTile.GetComponent<Tile>().SetCoords(newPos[0], newPos[1]);
+                            newTile.GetComponent<Tile>().Coords = new Vector2Int(newPos[0], newPos[1]);
                             GameBoardManager.Instance.SetTile(newTile, newPos[0], newPos[1]);
                         }
                     }

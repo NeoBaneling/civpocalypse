@@ -95,6 +95,11 @@ public class GameBoardManager : MonoBehaviour
         }
     }
 
+    public GameObject GetTile(Vector2Int coords)
+    {
+        return GetTile(coords[0], coords[1]);
+    }
+
     public List<GameObject> GetNeighboringTiles(int x, int z)
     {
         List<GameObject> list = new List<GameObject>();
@@ -295,6 +300,11 @@ public class GameBoardManager : MonoBehaviour
         return path;
     }
 
+    public Queue<GameObject> GetPath(Vector2Int start, Vector2Int target)
+    {
+        return GetPath(start[0], start[1], target[0], target[1]);
+    }
+
     public GameObject GetFog()
     {
         return fog;
@@ -313,7 +323,6 @@ public class GameBoardManager : MonoBehaviour
     void HighlightTile()
     {
         GameObject tile = GameObject.FindGameObjectsWithTag("TileSelected")[0];
-        int[] arr = tile.GetComponent<Tile>().GetCoords();
-        selectedTile = GetTile(arr[0], arr[1]);
+        selectedTile = GetTile(tile.GetComponent<Tile>().Coords);
     }
 }

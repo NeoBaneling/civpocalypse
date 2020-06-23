@@ -201,11 +201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 840ef50d899a6434eadc038a9dd0ba20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitName: 
-  speed: 2
-  attack: 0
-  defense: 0
-  baseM: {fileID: 2100000, guid: ea7fa810885f04ebf8c4583fa82344d3, type: 2}
-  selectedM: {fileID: 2100000, guid: 94e124c56a6ff44d88f29a1f8b88ebd2, type: 2}
-  _faction: 0
-  _isSelected: 0
+  UnitName: 
+  Speed: 2
+  Attack: 0
+  Defense: 0

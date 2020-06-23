@@ -83,7 +83,7 @@ public class CameraController : MonoBehaviour
     private void MoveCameraToUnit()
     {
         GameObject unit = UnitManager.Instance.selectedUnit;
-        int[] coords = unit.GetComponent<Unit>().GetCoords();
+        Vector2Int coords = unit.GetComponent<Unit>().Coords;
         atTarget = false;
         targetPos = new Vector3(coords[0]*3, minY, coords[1]*3-1.5f);
     }
