@@ -36,19 +36,28 @@ public class Player : MonoBehaviour
     {
         EventManager.StartListening("UnitMovedEvent", RemoveFogWithUnit);
         EventManager.StartListening("TurnStartEvent", BeginTurn);
-        EventManager.StartListening("UnitFinishedMovingEvent", ToNextUnit);
+        EventManager.StartListening("UnitFinishedMovingEvent", ToNextPiece);
+        EventManager.StartListening("CityFinishedTurnEvent", ToNextPiece);
+        EventManager.StartListening("UnitGeneratedEvent", AddUnitToCollection);
     }
 
     void OnDisable()
     {
         EventManager.StopListening("UnitMovedEvent", RemoveFogWithUnit);
         EventManager.StopListening("TurnStartEvent", BeginTurn);
-        EventManager.StopListening("UnitFinishedMovingEvent", ToNextUnit);
+        EventManager.StopListening("UnitFinishedMovingEvent", ToNextPiece);
+        EventManager.StopListening("CityFinishedTurnEvent", ToNextPiece);
+        EventManager.StopListening("UnitGeneratedEvent", AddUnitToCollection);
     }
 
     public void SetActiveUnits(Queue<GameObject> activeUnits)
     {
         this.activeUnits = activeUnits;
+    }
+
+    public void SetActiveCities(Queue<GameObject> activeCities)
+    {
+        this.activeCities = activeCities;
     }
 
     /**
@@ -65,8 +74,8 @@ public class Player : MonoBehaviour
         currActiveCity = null;
         CreateBoardTiles();
         // CreateBasicUnit();
-        CreateBasicUnit();
-        CreateBasicSpeedyUnit();
+        // CreateBasicUnit();
+        // CreateBasicSpeedyUnit();
         CreateSettlers();
     }
 
@@ -123,23 +132,61 @@ public class Player : MonoBehaviour
 
     private void BeginTurn()
     {
-        ToNextUnit();
+        hasActiveUnits = true;
+        hasActiveCities = true;
+        ToNextPiece();
+    }
+
+    private void ToNextPiece()
+    {
+        if (!hasActiveUnits && !hasActiveCities)
+        {
+            EventManager.TriggerEvent("TurnCompleteEvent");
+        }
+        else if (!hasActiveUnits)
+        {
+            ToNextCity();
+        }
+        else
+        {
+            ToNextUnit();
+        }
     }
 
     private void ToNextUnit()
     {
-        Debug.Log("It's time to get another unit");
         if (activeUnits.Count > 0)
         {
             currActiveUnit = activeUnits.Dequeue();
-            Debug.Log(currActiveUnit);
             hasActiveUnits = true;
             currActiveUnit.GetComponent<Unit>().ToggleIsSelected();
         }
         else
         {
             hasActiveUnits = false;
-            EventManager.TriggerEvent("TurnCompleteEvent");
+        }
+    }
+
+    private void ToNextCity()
+    {
+        if (activeCities.Count > 0)
+        {
+            currActiveCity = activeCities.Dequeue();
+            hasActiveCities = true;
+            currActiveCity.GetComponent<City>().ToggleIsSelected();
+        }
+        else
+        {
+            hasActiveCities = false;
+        }
+    }
+
+    private void AddUnitToCollection()
+    {
+        GameObject unit = UnitManager.Instance.selectedUnit;
+        if (unit.GetComponent<Unit>().Faction.Equals(faction))
+        {
+            units.Add(unit);
         }
     }
 
@@ -186,7 +233,7 @@ public class Player : MonoBehaviour
             z = Random.Range(2, GameBoardManager.Instance.boardSize - 2);
         } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
 
-        units.Add(UnitManager.Instance.CreateUnit("BasicUnit", new Vector2Int(x,z), faction));
+        UnitManager.Instance.CreateUnit("BasicUnit", new Vector2Int(x,z), faction);
         EventManager.TriggerEvent("UnitGeneratedEvent");
         RemoveFog(x, z);
     }
@@ -205,7 +252,7 @@ public class Player : MonoBehaviour
             z = Random.Range(2, GameBoardManager.Instance.boardSize - 2);
         } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
 
-        units.Add(UnitManager.Instance.CreateUnit("BasicSpeedyUnit", new Vector2Int(x,z), faction));
+        UnitManager.Instance.CreateUnit("BasicSpeedyUnit", new Vector2Int(x,z), faction);
         EventManager.TriggerEvent("UnitGeneratedEvent");
         RemoveFog(x, z);
     }
@@ -224,7 +271,7 @@ public class Player : MonoBehaviour
             z = Random.Range(0, GameBoardManager.Instance.boardSize);
         } while (GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Mountain" || GameBoardManager.Instance.GetTile(x, z).GetComponent<Tile>().type == "Water");
 
-        units.Add(UnitManager.Instance.CreateUnit("Settler", new Vector2Int(x,z), faction));
+        UnitManager.Instance.CreateUnit("Settler", new Vector2Int(x,z), faction);
         EventManager.TriggerEvent("UnitGeneratedEvent");
         RemoveFog(x, z);
     }

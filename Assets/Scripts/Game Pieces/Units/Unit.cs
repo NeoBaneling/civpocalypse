@@ -9,8 +9,7 @@ public class Unit : GamePiece
     public int Speed;
     public int Attack;
     public int Defense;
-
-    public Material SelectedMaterial { get; protected set; }
+    public int Cost;
 
     // Movement variables
     private bool canMove = false;
@@ -44,18 +43,17 @@ public class Unit : GamePiece
     public void Setup(Faction faction, Vector2Int coords, GameObject tile, bool isSelected, string name)
     {
         UnitName = name;
-        SelectedMaterial = (Material) Resources.Load("Materials/Highlight", typeof (Material));
         Setup(faction, coords, tile, isSelected);
     }
 
-    // Just switches whether the unit is selected
-    public void ToggleIsSelected()
+    protected override void SetPieceToTile(GameObject tile)
     {
-        SetIsSelected(!IsSelected);
+        Coords = tile.GetComponent<Tile>().Coords;
+        transform.position = new Vector3(Coords[0]*3, tile.GetComponent<Tile>().height + (transform.lossyScale.y / 2), Coords[1]*3);
     }
 
-    // Handles all the flipping of schtuff when a unit is selected
-    private void SetIsSelected(bool value)
+
+    protected override void SetIsSelected(bool value)
     {
         IsSelected = value;
         if (IsSelected)
@@ -71,7 +69,7 @@ public class Unit : GamePiece
         }
     }
 
-    private void CheckMouseClick()
+    protected override void CheckMouseClick()
     {
         if (Input.GetMouseButtonDown(0))
         {

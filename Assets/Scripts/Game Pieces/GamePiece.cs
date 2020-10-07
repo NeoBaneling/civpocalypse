@@ -5,7 +5,7 @@ using UnityEngine;
 /**
  * A parent class for any "physical" piece of the game
  **/
-public class GamePiece : MonoBehaviour
+public abstract class GamePiece : MonoBehaviour
 {
     /**
      * Faction provides which faction owns the game piece.
@@ -18,6 +18,7 @@ public class GamePiece : MonoBehaviour
     public Faction Faction { get; protected set; }
     public Vector2Int Coords { get; protected set; }
     public Material Material { get; protected set; }
+    public Material SelectedMaterial { get; protected set; }
 
     public bool IsSelected { get; protected set; }
     public bool IsActive { get; protected set; }
@@ -30,16 +31,23 @@ public class GamePiece : MonoBehaviour
         this.Coords = coords;
         SetPieceToTile(tile);
         Material = (Material) Resources.Load("Materials/"+faction, typeof (Material));
+        SelectedMaterial = (Material) Resources.Load("Materials/Highlight", typeof (Material));
         GetComponent<MeshRenderer>().material = Material;
 
         IsSelected = false;
         IsActive = true;
     }
 
-    protected void SetPieceToTile(GameObject tile)
+    protected abstract void SetPieceToTile(GameObject tile);
+
+    // Just switches whether the piece is selected
+    public void ToggleIsSelected()
     {
-        Debug.Log("Setting current game piece to tile "+ tile);
-        Coords = tile.GetComponent<Tile>().Coords;
-        transform.position = new Vector3(Coords[0]*3, tile.GetComponent<Tile>().height + (transform.lossyScale.y / 2), Coords[1]*3);
+        SetIsSelected(!IsSelected);
     }
+
+    // Handles all the flipping of schtuff when a piece is selected
+    protected abstract void SetIsSelected(bool value);
+
+    protected abstract void CheckMouseClick();
 }
